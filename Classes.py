@@ -19,10 +19,10 @@ class Pessoa:
         if 0 < self.vida < 10:
             print(self.nome, 'está muito ferido!')
             self.ataque = 1
-            self.defesa = 1
+            self.defesa = 0
         elif self.vida < 0:
             print(self.nome, 'morreu.')
-            del(self) # ????????????
+            self.__del__()
 
     def __add__(self, pocao):
         self.vida += pocao.cont
@@ -32,6 +32,9 @@ class Pessoa:
         for i,o in self.__dict__.items():
             print(i+':',o)
         return str(self.__dict__)
+    
+    def __del__(self):
+        print(self.nome,"morreu ao nível:",self.nivel)
 
     def up(self):
         self.gloria -= 100
@@ -51,4 +54,4 @@ class Pessoa:
     def descansa(self):
         if self.gloria > 99: self.up()
         else:
-            self.heal()
+            self.heal(10)
