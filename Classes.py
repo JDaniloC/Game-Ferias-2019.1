@@ -1,3 +1,5 @@
+import random
+
 class Pessoa:
     def __init__(self, nome = 'Inimigo'):
         self.nome = nome
@@ -25,12 +27,21 @@ class Pessoa:
             self.__del__()
 
     def __add__(self, pocao):
-        self.vida += pocao.cont
-        if self.vida > self.total['vida']: self.vida = self.total['vida']
+        try:
+            pocao = pocao.eat()
+            if pocao > 5: self.vida += pocao
+            elif pocao == 5: self.ataque += pocao
+            else: self.defesa += pocao
+            if self.vida > self.total['vida']: self.vida = self.total['vida']
+        except:
+            self.gloria += pocao.tipo
+        finally:
+            print(self)
 
     def __str__(self):
         for i,o in self.__dict__.items():
             print(i+':',o)
+        print()
         return str(self.__dict__)
     
     def __del__(self):
@@ -55,3 +66,32 @@ class Pessoa:
         if self.gloria > 99: self.up()
         else:
             self.heal(10)
+        
+    def __call__(self):
+        print("Ola")
+
+class Supply:
+    def __init__(self):
+        self.tipo = random.randint(1,5)
+    def eat(self):
+        if self.tipo == 1:
+            print("Poção Simples!")
+            return 10
+        elif self.tipo == 2:
+            print("Poção Normal!")
+            return 50
+        elif self.tipo == 3:
+            print("Poção Grande!")
+            return 100
+        elif self.tipo == 4:
+            print("Mais força!")
+            return 5
+        else:
+            print("Mais defesa!")
+            return 3
+
+class Xp:
+    def __init__(self): 
+        self.lista = [10, 50, 100]
+        random.shuffle(self.lista)
+        self.tipo = self.lista[0]
