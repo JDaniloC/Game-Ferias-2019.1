@@ -35,6 +35,7 @@ class Pessoa:
             if self.vida > self.total['vida']: self.vida = self.total['vida']
         except:
             self.gloria += pocao.tipo
+            if self.gloria > 99: self.up()
         finally:
             print(self)
 
@@ -49,7 +50,6 @@ class Pessoa:
 
     def up(self):
         self.gloria -= 100
-        if self.gloria > 99: self.descansa()
         self.total['vida'] += 10
         self.vida = self.total['vida']
         self.total['ataque'] += 1
@@ -57,15 +57,7 @@ class Pessoa:
         self.total['defesa'] += 1
         self.defesa = self.total['defesa']
         self.nivel += 1
-    
-    def heal(self, quant):
-        self.vida += quant
-        if self.vida > self.total['vida']: self.vida = self.total['vida']
-
-    def descansa(self):
         if self.gloria > 99: self.up()
-        else:
-            self.heal(10)
         
     def __call__(self):
         print("Ola")

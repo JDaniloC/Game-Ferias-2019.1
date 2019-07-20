@@ -116,6 +116,10 @@ def igual2(jogadores, objetos):
             del i
     return igual2(jogadores[1:], objetos)
 
+def sair():
+    global verificador
+    verificador = False
+
 janela = Tk()
 janela.title("A abolição do homem.")
 
@@ -123,9 +127,13 @@ janela.resizable(0,0)
 janela.wm_attributes("-topmost", 1)
 
 tela = Canvas(janela, width=600, height=600, bd=0, highlightthickness=0)
-botao = Button(janela, text="Pausa!", command=lambda: time.sleep(2))
+frame = Frame(janela)
+botao = Button(frame, text="Pausa!", command=lambda: time.sleep(2))
+vaza = Button(frame, text="Sair!", command=sair)
 tela.pack()
-botao.pack()
+frame.pack()
+botao.pack(side="left")
+vaza.pack(side='left')
 
 jogador = mob(tela, "blue", "Azul")
 outro = mob(tela, "green", "Verde")
@@ -136,9 +144,8 @@ for i in range(10):
     locais2.append(Ob(tela))
     locais2.append(Ob2(tela))
 
-while True:
-    print(jogador.posicao())
-    print(locais2[0].posicao())
+verificador = True
+while verificador:
     janela.update_idletasks()
     janela.update()
     if len(locais) > 1: 
