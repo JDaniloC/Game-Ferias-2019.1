@@ -9,7 +9,7 @@ class Mob(Pessoa):
         self.canvas = canvas
         super().__init__(nome)
         self.id = canvas.create_oval(10,10,26,26, fill= cor)
-        self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,730,2))
+        self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,680,2))
         if cor == "green":
             self.canvas.bind_all("<Key-a>", self.esquerda)
             self.canvas.bind_all("<Key-d>", self.direita)
@@ -38,14 +38,15 @@ class Mob(Pessoa):
             self.canvas.move(self.id, 0,-2)
         self.posicao()
     def baixo(self, evt = None):
-        if self.posicao()[1] < 730:
+        if self.posicao()[1] < 680:
             self.canvas.move(self.id, 0,2)
         self.posicao()
     def aleatorio(self):
         lista = [self.esquerda, self.direita, self.cima, self.baixo]
         random.shuffle(lista)
         lista[0]()
-    def anda(self, objetivo):
+    def npc(self, mobs):
+        objetivo = self.calcula(mobs)
         pos = self.posicao()
         if random.randint(1,2) == 1:
             if objetivo[1] < pos[1]: self.cima()
@@ -53,6 +54,16 @@ class Mob(Pessoa):
         else:
             if objetivo[0] < pos[0]: self.esquerda()
             elif objetivo[2] > pos[2]: self.direita()
+
+    def foge(self, mobs):
+        objetivo = self.calcula(mobs)
+        pos = self.posicao()
+        if random.randint(1,2) == 1:
+            if objetivo[1] < pos[1]: self.baixo()
+            elif objetivo[3] > pos[3]: self.cima()
+        else:
+            if objetivo[0] < pos[0]: self.direita()
+            elif objetivo[2] > pos[2]: self.esquerda()
 
     def calcula(self, mobs):
         coords = self.posicao()[:2]
@@ -62,7 +73,7 @@ class Mob(Pessoa):
                 cords = i.posicao()[:2]
                 dist.append(sqrt((abs(coords[0]-cords[0]))**2+(abs(coords[1]-cords[1]))**2))
             else: dist.append(9999)
-        self.anda(mobs[dist.index(min(dist))].posicao())
+        return mobs[dist.index(min(dist))].posicao()
 
     def posicao(self):
         return self.canvas.coords(self.id)
@@ -78,7 +89,7 @@ class Ob(Xp):
         super().__init__()
         self.canvas = canvas
         self.id = canvas.create_oval(10,10,20,20,fill="yellow")
-        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,700,2))
+        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,680,2))
     def posicao(self):
         return self.canvas.coords(self.id)
     def deleta(self):
@@ -89,7 +100,7 @@ class Ob2(Supply):
         super().__init__()
         self.canvas = canvas
         self.id = canvas.create_oval(10,10,20,20,fill="brown")
-        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,700,2))
+        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,680,2))
     def posicao(self):
         return self.canvas.coords(self.id)
     def deleta(self):
@@ -145,22 +156,22 @@ janela.title("A abolição do homem.")
 janela.resizable(0,0)
 janela.wm_attributes("-topmost", 1)
 
-tela = Canvas(janela, width=1280, height=750, bd=0, highlightthickness=0)
+tela = Canvas(janela, width=1280, height=700, bd=0, highlightthickness=0)
 frame = Frame(janela)
-botao = Button(frame, text="Pausa!", command=lambda: time.sleep(2))
+botao = Button(frame, text="Pausa!", command=lambda: time.sleep(60))
 vaza = Button(frame, text="Sair!", command=sair)
 tela.pack()
 frame.pack()
 botao.pack(side="left")
 vaza.pack(side='left')
 
-cores = ['dark slate gray', 'dim gray', 'slate gray', 'navy', 'cornflower blue', 'dark slate blue', 'deep sky blue', 'medium aquamarine', 'dark green', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'gold', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
+cores = ['dark slate gray', 'dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'deep sky blue', 'medium aquamarine', 'dark green', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
 
 locais = []
-for i in cores:
-    locais.append(Mob(tela, i, i))
+for i in range(9):
+    locais.append(Mob(tela, cores[i], cores[i]))
 locais2 = []
-for i in range(50):
+for i in range(60):
     locais2.append(Ob(tela))
     locais2.append(Ob2(tela))
 
@@ -171,5 +182,5 @@ while verificador:
     igual(locais)
     igual2(locais, locais2)
     for i in locais:
-        i.calcula(locais+locais2)
-    time.sleep(0.05)
+        i.npc(locais+locais2)
+    time.sleep(0.01)
