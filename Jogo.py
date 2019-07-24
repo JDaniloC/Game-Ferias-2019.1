@@ -2,13 +2,14 @@ from tkinter import *
 import random
 import time
 from Classes import Pessoa, Supply, Xp
+from math import sqrt
 
-class mob(Pessoa):
+class Mob(Pessoa):
     def __init__(self, canvas, cor, nome = "inimigo"):
         self.canvas = canvas
         super().__init__(nome)
         self.id = canvas.create_oval(10,10,26,26, fill= cor)
-        self.canvas.move(self.id, random.randrange(0,580,2), random.randrange(0,580,2))
+        self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,730,2))
         if cor == "green":
             self.canvas.bind_all("<Key-a>", self.esquerda)
             self.canvas.bind_all("<Key-d>", self.direita)
@@ -24,34 +25,52 @@ class mob(Pessoa):
         if self.posicao() == outro.posicao(): return True
         return False
 
-    def deleta(self):
-        self.canvas.delete(self.id)
-
-    def esquerda(self, evt):
+    def esquerda(self, evt = None):
         if self.posicao()[0] > 1:
             self.canvas.move(self.id, -2,0)
         self.posicao()
-    def direita(self, evt):
-        if self.posicao()[0] < 580:
+    def direita(self, evt = None):
+        if self.posicao()[0] < 1240:
             self.canvas.move(self.id, 2,0)
         self.posicao()
-    def cima(self, evt):
+    def cima(self, evt = None):
         if self.posicao()[1] > 1:
             self.canvas.move(self.id, 0,-2)
         self.posicao()
-    def baixo(self, evt):
-        if self.posicao()[1] < 580:
+    def baixo(self, evt = None):
+        if self.posicao()[1] < 730:
             self.canvas.move(self.id, 0,2)
         self.posicao()
-    def anda(self):
-        lista = [-2,0,2]
+    def aleatorio(self):
+        lista = [self.esquerda, self.direita, self.cima, self.baixo]
         random.shuffle(lista)
-        self.canvas.move(self.id, lista[0], lista[1])
+        lista[0]()
+    def anda(self, objetivo):
+        pos = self.posicao()
+        if random.randint(1,2) == 1:
+            if objetivo[1] < pos[1]: self.cima()
+            elif objetivo[3] > pos[3]: self.baixo()
+        else:
+            if objetivo[0] < pos[0]: self.esquerda()
+            elif objetivo[2] > pos[2]: self.direita()
+
+    def calcula(self, mobs):
+        coords = self.posicao()[:2]
+        dist = []
+        for i in mobs:
+            if i.id != self.id:
+                cords = i.posicao()[:2]
+                dist.append(sqrt((abs(coords[0]-cords[0]))**2+(abs(coords[1]-cords[1]))**2))
+            else: dist.append(9999)
+        self.anda(mobs[dist.index(min(dist))].posicao())
 
     def posicao(self):
         return self.canvas.coords(self.id)
 
-    def printa(self, evt):
+    def deleta(self):
+        self.canvas.delete(self.id)
+
+    def eventos(self, evt):
         print(evt)
 
 class Ob(Xp):
@@ -59,7 +78,7 @@ class Ob(Xp):
         super().__init__()
         self.canvas = canvas
         self.id = canvas.create_oval(10,10,20,20,fill="yellow")
-        self.canvas.move(self.id, random.randrange(0,580,2), random.randrange(0,580,2))
+        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,700,2))
     def posicao(self):
         return self.canvas.coords(self.id)
     def deleta(self):
@@ -70,7 +89,7 @@ class Ob2(Supply):
         super().__init__()
         self.canvas = canvas
         self.id = canvas.create_oval(10,10,20,20,fill="brown")
-        self.canvas.move(self.id, random.randrange(0,580,2), random.randrange(0,580,2))
+        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,700,2))
     def posicao(self):
         return self.canvas.coords(self.id)
     def deleta(self):
@@ -126,7 +145,7 @@ janela.title("A abolição do homem.")
 janela.resizable(0,0)
 janela.wm_attributes("-topmost", 1)
 
-tela = Canvas(janela, width=600, height=600, bd=0, highlightthickness=0)
+tela = Canvas(janela, width=1280, height=750, bd=0, highlightthickness=0)
 frame = Frame(janela)
 botao = Button(frame, text="Pausa!", command=lambda: time.sleep(2))
 vaza = Button(frame, text="Sair!", command=sair)
@@ -135,12 +154,13 @@ frame.pack()
 botao.pack(side="left")
 vaza.pack(side='left')
 
-jogador = mob(tela, "blue", "Azul")
-outro = mob(tela, "green", "Verde")
-inimigo = mob(tela, "red")
-locais = [jogador, outro, inimigo]
+cores = ['dark slate gray', 'dim gray', 'slate gray', 'navy', 'cornflower blue', 'dark slate blue', 'deep sky blue', 'medium aquamarine', 'dark green', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'gold', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
+
+locais = []
+for i in cores:
+    locais.append(Mob(tela, i, i))
 locais2 = []
-for i in range(10):
+for i in range(50):
     locais2.append(Ob(tela))
     locais2.append(Ob2(tela))
 
@@ -148,8 +168,8 @@ verificador = True
 while verificador:
     janela.update_idletasks()
     janela.update()
-    if len(locais) > 1: 
-        igual(locais)
-        igual2(locais, locais2)
-    inimigo.anda()
+    igual(locais)
+    igual2(locais, locais2)
+    for i in locais:
+        i.calcula(locais+locais2)
     time.sleep(0.05)
