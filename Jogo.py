@@ -46,23 +46,34 @@ class Mob(Pessoa):
         random.shuffle(lista)
         lista[0]()
     def npc(self, mobs):
-        objetivo = self.calcula(mobs)
         pos = self.posicao()
+        if self.vida > 10:
+            if self.nivel > 1: objetivo = self.calcula(mobs['pl']+mobs['pw'])
+            elif self.nivel >= 5 or self.ataque > 5: objetivo = self.calcula(mobs['pl'])
+            elif len(mobs['pw']) > 0: objetivo = self.calcula(mobs['pw'])
+            else: objetivo = self.calcula(mobs['pl'])
+            self.persegue(pos, objetivo)
+        else:
+            if len(mobs['pw']) > 0:
+                objetivo = self.calcula(mobs['pw'])
+                self.persegue(pos, objetivo)
+            else:
+                objetivo = self.calcula(mobs['pl'])
+                self.foge(pos, objetivo)
+    
+    def persegue(self, pos, objetivo):
         if random.randint(1,2) == 1:
             if objetivo[1] < pos[1]: self.cima()
             elif objetivo[3] > pos[3]: self.baixo()
         else:
             if objetivo[0] < pos[0]: self.esquerda()
             elif objetivo[2] > pos[2]: self.direita()
-
-    def foge(self, mobs):
-        objetivo = self.calcula(mobs)
-        pos = self.posicao()
+    def foge(self, pos, objetivo):
         if random.randint(1,2) == 1:
-            if objetivo[1] < pos[1]: self.baixo()
+            if objetivo[1] <= pos[1]: self.baixo()
             elif objetivo[3] > pos[3]: self.cima()
         else:
-            if objetivo[0] < pos[0]: self.direita()
+            if objetivo[0] <= pos[0]: self.direita()
             elif objetivo[2] > pos[2]: self.esquerda()
 
     def calcula(self, mobs):
@@ -89,7 +100,7 @@ class Ob(Xp):
         super().__init__()
         self.canvas = canvas
         self.id = canvas.create_oval(10,10,20,20,fill="yellow")
-        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,680,2))
+        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,670,2))
     def posicao(self):
         return self.canvas.coords(self.id)
     def deleta(self):
@@ -100,7 +111,7 @@ class Ob2(Supply):
         super().__init__()
         self.canvas = canvas
         self.id = canvas.create_oval(10,10,20,20,fill="brown")
-        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,680,2))
+        self.canvas.move(self.id, random.randrange(0,1200,2), random.randrange(0,670,2))
     def posicao(self):
         return self.canvas.coords(self.id)
     def deleta(self):
@@ -115,18 +126,22 @@ def compara(l1, l2):
     return False
 
 def dano(atk, dfs):
-    global locais
+    global players
     atk - dfs
     dfs - atk
     print(atk.nome+":",atk.vida)
     print(dfs.nome+":",dfs.vida)
     if atk.vida < 1:
+        dfs + Xp()
+        dfs + Supply()
         atk.deleta()
-        locais.remove(atk)
+        players.remove(atk)
         del atk
     if dfs.vida < 1:
+        atk + Xp()
+        atk + Supply()
         dfs.deleta()
-        locais.remove(dfs)
+        players.remove(dfs)
         del dfs
 
 def igual(locais):
@@ -151,36 +166,42 @@ def sair():
     verificador = False
 
 janela = Tk()
-janela.title("A abolição do homem.")
+janela.title("A abolição do homem")
 
 janela.resizable(0,0)
 janela.wm_attributes("-topmost", 1)
 
 tela = Canvas(janela, width=1280, height=700, bd=0, highlightthickness=0)
 frame = Frame(janela)
-botao = Button(frame, text="Pausa!", command=lambda: time.sleep(60))
+botao = Button(frame, text="Pausa!", command=lambda: time.sleep(30))
 vaza = Button(frame, text="Sair!", command=sair)
 tela.pack()
 frame.pack()
 botao.pack(side="left")
 vaza.pack(side='left')
 
-cores = ['dark slate gray', 'dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'deep sky blue', 'medium aquamarine', 'dark green', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
+cores = ['dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'deep sky blue', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
 
-locais = []
-for i in range(9):
-    locais.append(Mob(tela, cores[i], cores[i]))
-locais2 = []
+players = []
+powerups = []
+
+for i in range(10):
+    players.append(Mob(tela, cores[i], cores[i]))
 for i in range(60):
-    locais2.append(Ob(tela))
-    locais2.append(Ob2(tela))
+    powerups.append(Ob(tela))
+    powerups.append(Ob2(tela))
+
+objetos = {'pl':players, 'pw':powerups}
 
 verificador = True
 while verificador:
     janela.update_idletasks()
     janela.update()
-    igual(locais)
-    igual2(locais, locais2)
-    for i in locais:
-        i.npc(locais+locais2)
+    for i in players:
+        i.npc(objetos)
+    igual(players)
+    igual2(players, powerups)
     time.sleep(0.01)
+    if len(players) < 2:
+        break
+print(players[0].nome, 'venceu o jogo!')
