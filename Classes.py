@@ -11,20 +11,24 @@ class Pessoa:
         self.total = {'vida': self.vida, 'ataque': self.ataque, 'defesa': self.defesa}
 
     def __sub__(self, inimigo):
-        if inimigo.ataque == self.defesa: print('Ataque defendido totalmente')
+        if inimigo.ataque == self.defesa: 
+            print('Ataque defendido totalmente')
+            return 0
         elif inimigo.ataque < self.defesa:
-            inimigo - self
+            inimigo - self 
             print('Contra-ataque!')
+            return 0
         else:
             self.vida -= inimigo.ataque - self.defesa
             print(self.nome, 'recebeu',inimigo.ataque-self.defesa, 'de dano!')
         if 0 < self.vida < 10:
             print(self.nome, 'está muito ferido!')
-            self.ataque = 1
-            self.defesa = 0
-        elif self.vida < 0:
+            self.ataque = self.total['ataque']
+            self.defesa = self.total['defesa']
+        elif self.vida < 1:
             print(self.nome, 'morreu.')
             self.__del__()
+        return 1
 
     def __add__(self, pocao):
         try:

@@ -5,6 +5,7 @@ from Classes import Pessoa, Supply, Xp
 from math import sqrt
 
 class Mob(Pessoa):
+    listaNegra = []
     def __init__(self, canvas, cor, nome = "inimigo"):
         self.canvas = canvas
         super().__init__(nome)
@@ -49,7 +50,6 @@ class Mob(Pessoa):
         pos = self.posicao()
         if self.vida > 10:
             if self.nivel > 1: objetivo = self.calcula(mobs['pl']+mobs['pw'])
-            elif self.nivel >= 5 or self.ataque > 5: objetivo = self.calcula(mobs['pl'])
             elif len(mobs['pw']) > 0: objetivo = self.calcula(mobs['pw'])
             else: objetivo = self.calcula(mobs['pl'])
             self.persegue(pos, objetivo)
@@ -80,9 +80,11 @@ class Mob(Pessoa):
         coords = self.posicao()[:2]
         dist = []
         for i in mobs:
-            if i.id != self.id:
+            if i.id != self.id and i.id not in self.listaNegra:
                 cords = i.posicao()[:2]
                 dist.append(sqrt((abs(coords[0]-cords[0]))**2+(abs(coords[1]-cords[1]))**2))
+            elif i.id in self.listaNegra:
+                dist.append(9998)
             else: dist.append(9999)
         return mobs[dist.index(min(dist))].posicao()
 
@@ -127,8 +129,9 @@ def compara(l1, l2):
 
 def dano(atk, dfs):
     global players
+    if dfs - atk != 1:
+        atk.listaNegra.append(dfs.id)
     atk - dfs
-    dfs - atk
     print(atk.nome+":",atk.vida)
     print(dfs.nome+":",dfs.vida)
     if atk.vida < 1:
@@ -180,7 +183,7 @@ frame.pack()
 botao.pack(side="left")
 vaza.pack(side='left')
 
-cores = ['dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'deep sky blue', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
+cores = ['dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
 
 players = []
 powerups = []
@@ -194,7 +197,13 @@ for i in range(60):
 objetos = {'pl':players, 'pw':powerups}
 
 verificador = True
+cont = 0
 while verificador:
+    cont += 1
+    if cont == 300:
+        for i in players:
+            i.listaNegra = []
+        cont = 0
     janela.update_idletasks()
     janela.update()
     for i in players:
@@ -204,4 +213,5 @@ while verificador:
     time.sleep(0.01)
     if len(players) < 2:
         break
-print(players[0].nome, 'venceu o jogo!')
+print('\n',players[0].nome, 'venceu o jogo!')
+print(players[0])
