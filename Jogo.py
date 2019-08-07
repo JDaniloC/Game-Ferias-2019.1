@@ -190,7 +190,7 @@ class NaoJogo:
         botao.pack(side="left")
         vaza.pack(side='left')
 
-        cores = ['dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
+        cores = ['navy', 'cornflower blue', 'dark slate blue', 'medium sea green', 'light sea green', 'lawn green', 'lime green', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'OliveDrab1']
 
         players = []
         powerups = []
@@ -265,9 +265,12 @@ class config:
         elif not entry.isnumeric() or not entry2.isnumeric():
             verificator = False
             messagebox.showinfo("Alerta", "Precisa ser um número!")
-        elif entry > '10':
-            messagebox.showinfo("Alerta", "Você colocou mais de 10 jogadores! Pode dar uma excessão!")
-        elif entry2 > '60':
+        elif 10 < int(entry) < 23:
+            messagebox.showinfo("Alerta", "Você colocou mais de 10 jogadores! Pode dar uma excessão!") 
+        elif int(entry) > 23:
+            verificator = False
+            messagebox.showinfo("Alerta", "Você ultrapassou o máximo de jogadores (23)!")
+        elif int(entry2) > 60:
             messagebox.showinfo("Alerta", "Haverá mais de 120 objetos na tela! Pode dar uma excessão!")
         if verificator:
             NaoJogo(janela, int(entry), int(entry2), escolha)
