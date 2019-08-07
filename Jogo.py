@@ -3,10 +3,13 @@ import random
 import time
 from Classes import Pessoa, Supply, Xp
 from math import sqrt
+from functools import partial
+from tkinter import messagebox
 
 class Mob(Pessoa):
     listaNegra = []
     def __init__(self, canvas, cor, nome = "inimigo"):
+        self.cor = cor
         self.canvas = canvas
         super().__init__(nome)
         self.id = canvas.create_oval(10,10,26,26, fill= cor)
@@ -47,19 +50,20 @@ class Mob(Pessoa):
         random.shuffle(lista)
         lista[0]()
     def npc(self, mobs):
-        pos = self.posicao()
-        if self.vida > 10:
-            if self.nivel > 1: objetivo = self.calcula(mobs['pl']+mobs['pw'])
-            elif len(mobs['pw']) > 0: objetivo = self.calcula(mobs['pw'])
-            else: objetivo = self.calcula(mobs['pl'])
-            self.persegue(pos, objetivo)
-        else:
-            if len(mobs['pw']) > 0:
-                objetivo = self.calcula(mobs['pw'])
+        if self.cor != 'blue' and self.cor != 'green':
+            pos = self.posicao()
+            if self.vida > 10:
+                if self.nivel > 1: objetivo = self.calcula(mobs['pl']+mobs['pw'])
+                elif len(mobs['pw']) > 0: objetivo = self.calcula(mobs['pw'])
+                else: objetivo = self.calcula(mobs['pl'])
                 self.persegue(pos, objetivo)
             else:
-                objetivo = self.calcula(mobs['pl'])
-                self.foge(pos, objetivo)
+                if len(mobs['pw']) > 0:
+                    objetivo = self.calcula(mobs['pw'])
+                    self.persegue(pos, objetivo)
+                else:
+                    objetivo = self.calcula(mobs['pl'])
+                    self.foge(pos, objetivo)
     
     def persegue(self, pos, objetivo):
         if random.randint(1,2) == 1:
@@ -164,54 +168,107 @@ def igual2(jogadores, objetos):
             del i
     return igual2(jogadores[1:], objetos)
 
-def sair():
-    global verificador
-    verificador = False
+class NaoJogo:
+    def __init__(self, janela, jogadores, mobs, opcao):
+        global verificador
+        global players
 
-janela = Tk()
-janela.title("A abolição do homem")
+        self.verificador = True
+        janela.destroy()
+        self.janela = Tk()
+        self.janela.title("A abolição do homem")
 
-janela.resizable(0,0)
-janela.wm_attributes("-topmost", 1)
+        self.janela.resizable(0,0)
+        self.janela.wm_attributes("-topmost", 1)
 
-tela = Canvas(janela, width=1280, height=700, bd=0, highlightthickness=0)
-frame = Frame(janela)
-botao = Button(frame, text="Pausa!", command=lambda: time.sleep(30))
-vaza = Button(frame, text="Sair!", command=sair)
-tela.pack()
-frame.pack()
-botao.pack(side="left")
-vaza.pack(side='left')
+        tela = Canvas(self.janela, width=1280, height=700, bd=0, highlightthickness=0)
+        frame = Frame(self.janela)
+        botao = Button(frame, text="Pausa!", command=lambda: time.sleep(30))
+        vaza = Button(frame, text="Sair!", command=self.sair)
+        tela.pack()
+        frame.pack()
+        botao.pack(side="left")
+        vaza.pack(side='left')
 
-cores = ['dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
+        cores = ['dim gray', 'navy', 'cornflower blue', 'dark slate blue', 'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green','lawn green', 'green yellow', 'lime green', 'olive drab', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'medium orchid', 'medium purple', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'SpringGreen2', 'OliveDrab1']
 
-players = []
-powerups = []
+        players = []
+        powerups = []
 
-for i in range(10):
-    players.append(Mob(tela, cores[i], cores[i]))
-for i in range(60):
-    powerups.append(Ob(tela))
-    powerups.append(Ob2(tela))
+        for i in range(jogadores):
+            players.append(Mob(tela, cores[i], cores[i]))
+        for i in range(mobs):
+            powerups.append(Ob(tela))
+            powerups.append(Ob2(tela))
 
-objetos = {'pl':players, 'pw':powerups}
+        if opcao  == 1:
+            players.append(Mob(tela, 'blue', "Jogador"))
+        elif opcao == 2:
+            players.append(Mob(tela, 'blue', "Jogador 01"))
+            players.append(Mob(tela, 'green', 'Jogador 02'))
 
-verificador = True
-cont = 0
-while verificador:
-    cont += 1
-    if cont == 300:
-        for i in players:
-            i.listaNegra = []
+        objetos = {'pl':players, 'pw':powerups}
         cont = 0
-    janela.update_idletasks()
-    janela.update()
-    for i in players:
-        i.npc(objetos)
-    igual(players)
-    igual2(players, powerups)
-    time.sleep(0.01)
-    if len(players) < 2:
-        break
-print('\n',players[0].nome, 'venceu o jogo!')
-print(players[0])
+        while self.verificador:
+            cont += 1
+            if cont == 300:
+                for i in players:
+                    i.listaNegra = []
+                cont = 0
+            self.janela.update_idletasks()
+            self.janela.update()
+            for i in players:
+                i.npc(objetos)
+            igual(players)
+            igual2(players, powerups)
+            time.sleep(0.01)
+            if len(players) < 2:
+                break
+        print('\n',players[0].nome, 'venceu o jogo!')
+        print(players[0])
+    
+    def sair(self):
+        self.verificador = False
+        self.janela.destroy()
+
+class config:
+    def __init__(self):
+        janela = Tk()
+        escolha = IntVar()
+        janela.title("Configurações")
+        label = Label(janela, text='Quantos Jogadores?')
+        entry = Entry(janela)
+        label2 = Label(janela, text='Quantos recursos?')
+        entry2 = Entry(janela)
+        label3 = Label(janela, text='Haverão jogadores?')
+        check = Radiobutton(janela, text= "Apenas NPC\'s", variable=escolha, value=0)
+        check2 = Radiobutton(janela, text= "Um jogador nas setas", variable=escolha, value=1)
+        check3 = Radiobutton(janela, text= "Dois jogadores (WASD)", variable=escolha, value=2)
+        comecar = Button(janela, text="Iniciar", command=partial(self.inicia, janela, entry, entry2, escolha))
+        label.pack()
+        entry.pack()
+        label2.pack()
+        entry2.pack()
+        label3.pack()
+        check.pack()
+        check2.pack()
+        check3.pack()
+        comecar.pack()
+        janela.mainloop()
+
+    def inicia(self, janela, entry, entry2, escolha):
+        entry, entry2, escolha = entry.get(), entry2.get(), escolha.get()
+        verificator = True
+        if entry == '' or entry2 == '':
+            verificator = False
+            messagebox.showinfo("Alerta", "Preencha os campos!")
+        elif not entry.isnumeric() or not entry2.isnumeric():
+            verificator = False
+            messagebox.showinfo("Alerta", "Precisa ser um número!")
+        elif entry > '10':
+            messagebox.showinfo("Alerta", "Você colocou mais de 10 jogadores! Pode dar uma excessão!")
+        elif entry2 > '60':
+            messagebox.showinfo("Alerta", "Haverá mais de 120 objetos na tela! Pode dar uma excessão!")
+        if verificator:
+            NaoJogo(janela, int(entry), int(entry2), escolha)
+config()
