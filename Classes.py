@@ -8,6 +8,7 @@ class Pessoa:
         self.defesa = 0
         self.nivel = 0
         self.gloria = 0
+        self.pontos = self.ataque*5+self.defesa*4+self.nivel*self.vida/100+self.gloria
         self.total = {'vida': self.vida, 'ataque': self.ataque, 'defesa': self.defesa}
 
     def __sub__(self, inimigo):
@@ -52,6 +53,10 @@ class Pessoa:
     def __del__(self):
         print(self.nome,"morreu ao nível:",self.nivel)
 
+    def __gt__(self, outro):
+        if self.pontos > outro.pontos: return True
+        return False
+    
     def up(self):
         self.gloria -= 100
         self.total['vida'] += 10
@@ -61,6 +66,7 @@ class Pessoa:
         self.total['defesa'] += 1
         self.defesa = self.total['defesa']
         self.nivel += 1
+        self.pontos = self.ataque*5+self.defesa*4+self.nivel*self.vida/100+self.gloria
         if self.gloria > 99: self.up()
         
     def __call__(self):
