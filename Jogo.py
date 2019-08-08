@@ -13,13 +13,16 @@ class Mob(Pessoa):
         self.canvas = canvas
         super().__init__(nome)
         self.id = canvas.create_oval(10,10,26,26, fill= cor)
+        if nome == "inimigo": nome = cor
+        self.info = canvas.create_text(30,5, text=nome)
         self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,680,2))
-        if cor == "green":
+        self.canvas.move(self.info, self.posicao()[0]-20, self.posicao()[1]-12)
+        if self.cor == "grplayers[0].nome, 'venceu o jogo!'een":
             self.canvas.bind_all("<Key-a>", self.esquerda)
             self.canvas.bind_all("<Key-d>", self.direita)
             self.canvas.bind_all("<Key-w>", self.cima)
             self.canvas.bind_all("<Key-s>", self.baixo)
-        elif cor == "blue":
+        elif self.cor == "blue":
             self.canvas.bind_all("<KeyPress-Left>", self.esquerda)
             self.canvas.bind_all("<KeyPress-Right>", self.direita)
             self.canvas.bind_all("<KeyPress-Up>", self.cima)
@@ -32,18 +35,22 @@ class Mob(Pessoa):
     def esquerda(self, evt = None):
         if self.posicao()[0] > 1:
             self.canvas.move(self.id, -2,0)
+            self.canvas.move(self.info, -2,0)
         self.posicao()
     def direita(self, evt = None):
         if self.posicao()[0] < 1240:
             self.canvas.move(self.id, 2,0)
+            self.canvas.move(self.info, 2,0)
         self.posicao()
     def cima(self, evt = None):
         if self.posicao()[1] > 1:
             self.canvas.move(self.id, 0,-2)
+            self.canvas.move(self.info, 0, -2)
         self.posicao()
     def baixo(self, evt = None):
         if self.posicao()[1] < 680:
             self.canvas.move(self.id, 0,2)
+            self.canvas.move(self.info, 0, 2)
         self.posicao()
     def aleatorio(self):
         lista = [self.esquerda, self.direita, self.cima, self.baixo]
@@ -97,6 +104,7 @@ class Mob(Pessoa):
 
     def deleta(self):
         self.canvas.delete(self.id)
+        self.canvas.delete(self.info)
 
     def eventos(self, evt):
         print(evt)
@@ -122,51 +130,6 @@ class Ob2(Supply):
         return self.canvas.coords(self.id)
     def deleta(self):
         self.canvas.delete(self.id)
-
-def compara(l1, l2):
-    if l1[0] <= l2[0]:
-        if l1[1] <= l2[1]:
-            if l1[2] >= l2[2]:
-                if l1[3] >= l2[3]:
-                    return True
-    return False
-
-def dano(atk, dfs):
-    global players
-    if dfs - atk != 1:
-        atk.listaNegra.append(dfs.id)
-    atk - dfs
-    print(atk.nome+":",atk.vida)
-    print(dfs.nome+":",dfs.vida)
-    if atk.vida < 1:
-        dfs + Xp()
-        dfs + Supply()
-        atk.deleta()
-        players.remove(atk)
-        del atk
-    if dfs.vida < 1:
-        atk + Xp()
-        atk + Supply()
-        dfs.deleta()
-        players.remove(dfs)
-        del dfs
-
-def igual(locais):
-    if locais == []: return
-    for i in locais[1:]:
-        if locais[0].posicao() == i.posicao():
-            dano(locais[0], i)
-    return igual(locais[1:])
-
-def igual2(jogadores, objetos):
-    if jogadores == []: return
-    for i in objetos:
-        if compara(jogadores[0].posicao(), i.posicao()):
-            jogadores[0] + i
-            i.deleta()
-            objetos.remove(i)
-            del i
-    return igual2(jogadores[1:], objetos)
 
 class NaoJogo:
     def __init__(self, janela, jogadores, mobs, opcao):
@@ -219,17 +182,67 @@ class NaoJogo:
             self.janela.update()
             for i in players:
                 i.npc(objetos)
-            igual(players)
-            igual2(players, powerups)
+            self.igual(players)
+            self.igual2(players, powerups)
             time.sleep(0.01)
             if len(players) < 2:
                 break
-        print('\n',players[0].nome, 'venceu o jogo!')
-        print(players[0])
+        messagebox.showinfo("Fim de Jogo", players[0].nome+' venceu o jogo!' )
+        ganhador = players[0].__dict__
+        lista = ["vida", "ataque", "defesa", "nivel", "gloria", "total"]
+        print("Informações de", ganhador["nome"])
+        for i in lista:
+            print(i,":",ganhador[i])
+        self.sair()
     
     def sair(self):
         self.verificador = False
         self.janela.destroy()
+    
+    def compara(self, l1, l2):
+        if l1[0] <= l2[0]:
+            if l1[1] <= l2[1]:
+                if l1[2] >= l2[2]:
+                    if l1[3] >= l2[3]:
+                        return True
+        return False
+    
+    def dano(self, atk, dfs):
+        global players
+        if dfs - atk != 1:
+            atk.listaNegra.append(dfs.id)
+        atk - dfs
+        print(atk.nome+":",atk.vida)
+        print(dfs.nome+":",dfs.vida)
+        if atk.vida < 1:
+            dfs + Xp()
+            dfs + Supply()
+            atk.deleta()
+            players.remove(atk)
+            del atk
+        if dfs.vida < 1:
+            atk + Xp()
+            atk + Supply()
+            dfs.deleta()
+            players.remove(dfs)
+            del dfs
+    
+    def igual(self, locais): # Antes era recursivo e chegava ao máximo
+        for a in range(len(locais)):
+            for i in range(a+1,len(locais)):
+                if i < len(locais) and a < len(locais):
+                    if locais[a].posicao() == locais[i].posicao():
+                        self.dano(locais[a], locais[i])
+    
+    def igual2(self, jogadores, objetos):
+        for a in range(len(jogadores)):
+            for i in objetos:
+                if self.compara(jogadores[a].posicao(), i.posicao()):
+                    jogadores[0] + i
+                    i.deleta()
+                    objetos.remove(i)
+                    del i
+    
 
 class config:
     def __init__(self):
