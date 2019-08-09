@@ -7,9 +7,33 @@ from functools import partial
 from tkinter import messagebox
 from Multilistbox import Multilist
 
+'''
+Criando um "Jogo" simples em Tkinter!
+'''
+
 class Mob(Pessoa):
-    listaNegra = []
-    def __init__(self, canvas, cor, nome = "inimigo"):
+    '''
+    A uniao da classe Pessoa com as peculiaridades de funcoes atraves do Tkinter como:
+     - Se movimentar (teleportar 2 pixels):
+        . Movimento lento e rapido para players
+        . Movimento aleatorio para Bots
+        . Movimento inteligente para Bots
+     - Reconhecer e retornar localizacao
+     - Se auto deletar
+
+Funções:
+    __init__(canvas, cor, nome = "inimigo", mov = "n")
+     - canvas = O objeto Canvas (tkinter) onde o objeto Mob sera instanciado
+     - nome = Caso quiser colocar um nome na hora da vitoria
+     - mov = Se ele deve andar automaticamente (na direcao dada) ou nao
+
+    __eq__(outro)
+     - outro 
+    '''
+    def __init__(self, canvas, cor, nome = "inimigo", mov = 'n'):
+        self.listaNegra = []
+        self.mov = mov
+        self.movimentos = [False, False, False, False] # 0 = Cima, 1 = Baixo, 2 = Esquerda, 3 = Direita
         self.cor = cor
         self.canvas = canvas
         super().__init__(nome)
@@ -19,19 +43,54 @@ class Mob(Pessoa):
         self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,680,2))
         self.canvas.move(self.info, self.posicao()[0]-20, self.posicao()[1]-12)
         if self.cor == "green":
-            self.canvas.bind_all("<Key-a>", self.esquerda)
-            self.canvas.bind_all("<Key-d>", self.direita)
-            self.canvas.bind_all("<Key-w>", self.cima)
-            self.canvas.bind_all("<Key-s>", self.baixo)
+            self.canvas.bind_all("<Shift_L>", self.para)
+            if self.mov == 'n':
+                self.canvas.bind_all("<Key-a>", self.esquerda)
+                self.canvas.bind_all("<Key-d>", self.direita)
+                self.canvas.bind_all("<Key-w>", self.cima)
+                self.canvas.bind_all("<Key-s>", self.baixo)
+            else:
+                self.canvas.bind_all("<Key-a>", self.aesquerda)
+                self.canvas.bind_all("<Key-d>", self.adireita)
+                self.canvas.bind_all("<Key-w>", self.acima)
+                self.canvas.bind_all("<Key-s>", self.abaixo)
         elif self.cor == "blue":
-            self.canvas.bind_all("<KeyPress-Left>", self.esquerda)
-            self.canvas.bind_all("<KeyPress-Right>", self.direita)
-            self.canvas.bind_all("<KeyPress-Up>", self.cima)
-            self.canvas.bind_all("<KeyPress-Down>", self.baixo)
+            self.canvas.bind_all("<Control_R>", self.para)
+            if self.mov == 'n':
+                self.canvas.bind_all("<KeyPress-Left>", self.esquerda)
+                self.canvas.bind_all("<KeyPress-Right>", self.direita)
+                self.canvas.bind_all("<KeyPress-Up>", self.cima)
+                self.canvas.bind_all("<KeyPress-Down>", self.baixo)
+            else:
+                self.canvas.bind_all("<KeyPress-Left>", self.aesquerda)
+                self.canvas.bind_all("<KeyPress-Right>", self.adireita)
+                self.canvas.bind_all("<KeyPress-Up>", self.acima)
+                self.canvas.bind_all("<KeyPress-Down>", self.abaixo)
 
     def __eq__(self, outro):
         if self.posicao() == outro.posicao(): return True
         return False
+
+    def para(self, evt=None):
+        for i in range(len(self.movimentos)):
+            self.movimentos[i] = False
+
+    def acima(self, evt=None): 
+        for i in range(len(self.movimentos)):
+            self.movimentos[i] = False
+        self.movimentos[0] = True
+    def abaixo(self, evt=None): 
+        for i in range(len(self.movimentos)):
+            self.movimentos[i] = False
+        self.movimentos[1] = True
+    def aesquerda(self, evt=None): 
+        for i in range(len(self.movimentos)):
+            self.movimentos[i] = False
+        self.movimentos[2] = True
+    def adireita(self, evt=None): 
+        for i in range(len(self.movimentos)):
+            self.movimentos[i] = False
+        self.movimentos[3] = True
 
     def esquerda(self, evt = None):
         if self.posicao()[0] > 1:
@@ -53,6 +112,7 @@ class Mob(Pessoa):
             self.canvas.move(self.id, 0,2)
             self.canvas.move(self.info, 0, 2)
         self.posicao()
+
     def aleatorio(self):
         lista = [self.esquerda, self.direita, self.cima, self.baixo]
         random.shuffle(lista)
@@ -133,7 +193,7 @@ class Ob2(Supply):
         self.canvas.delete(self.id)
 
 class NaoJogo:
-    def __init__(self, janela, jogadores, mobs, opcao, frequencia):
+    def __init__(self, janela, jogadores, mobs, opcao, frequencia, velocidade, auto):
         self.verificador = True
         janela.destroy()
         self.janela = Tk()
@@ -162,17 +222,27 @@ class NaoJogo:
         self.players = []
         powerups = []
 
+        if opcao  == 1:
+            if auto == 's':
+                jogador = Mob(tela, 'blue', "Jogador", 's')
+                self.players.append(jogador)
+            else:
+                self.players.append(Mob(tela, 'blue', "Jogador"))
+        elif opcao == 2:
+            if auto == 's':
+                jogador = Mob(tela, 'blue', "Jogador", 's')
+                jogador2 = Mob(tela, 'green', "Jogador 02", 's')
+                self.players.append(jogador)
+                self.players.append(jogador2)
+            else:
+                self.players.append(Mob(tela, 'blue', "Jogador"))
+                self.players.append(Mob(tela, 'green', "Jogador 02"))
+        
         for i in range(jogadores):
             self.players.append(Mob(tela, cores[i], cores[i]))
         for i in range(mobs):
             powerups.append(Ob(tela))
             powerups.append(Ob2(tela))
-
-        if opcao  == 1:
-            self.players.append(Mob(tela, 'blue', "Jogador"))
-        elif opcao == 2:
-            self.players.append(Mob(tela, 'blue', "Jogador 01"))
-            self.players.append(Mob(tela, 'green', 'Jogador 02'))
 
         objetos = {'pl':self.players, 'pw':powerups}
         cont = 0
@@ -197,12 +267,31 @@ class NaoJogo:
             if cont == 600: cont = 0
             self.janela.update_idletasks()
             self.janela.update()
+            if auto == 's':
+                if opcao >= 1 and jogador.vida > 0:
+                    if jogador.movimentos[2]: jogador.esquerda()
+                    elif jogador.movimentos[3]: jogador.direita()
+                    elif jogador.movimentos[0]: jogador.cima()
+                    elif jogador.movimentos[1]: jogador.baixo()
+                if opcao == 2 and jogador2.vida > 0:
+                    if jogador2.movimentos[2]: jogador2.esquerda()
+                    elif jogador2.movimentos[3]: jogador2.direita()
+                    elif jogador2.movimentos[0]: jogador2.cima()
+                    elif jogador2.movimentos[1]: jogador2.baixo()
+            else:
+                if opcao >= 1:
+                    for i in self.players:
+                        if i.id == 1 or i.id == 2:
+                            if i.movimentos[2]: jogador.esquerda()
+                            elif i.movimentos[3]: jogador.direita()
+                            elif i.movimentos[0]: jogador.cima()
+                            elif i.movimentos[1]: jogador.baixo()
             for i in self.players:
                 i.npc(objetos)
             random.shuffle(self.players)
             self.igual(self.players)
             self.igual2(self.players, powerups)
-            time.sleep(0.01)
+            time.sleep(velocidade)
             if len(self.players) < 2:
                 break
         messagebox.showinfo("Fim de Jogo", self.players[0].nome+' venceu o jogo!' )
@@ -279,45 +368,52 @@ class NaoJogo:
 class config:
     def __init__(self):
         janela = Tk()
-        escolha = IntVar()
+        self.escolha = IntVar()
+        self.vlc = DoubleVar()
         self.frequencia = IntVar()
+        self.choice = IntVar()
         janela.title("Configurações")
-        label = Label(janela, text='Quantos Jogadores?')
-        entry = Entry(janela)
-        label2 = Label(janela, text='Quantos recursos?')
-        entry2 = Entry(janela)
-        label3 = Label(janela, text='Haverão jogadores?')
-        check = Radiobutton(janela, text= "Apenas NPC\'s", variable=escolha, value=0)
-        check2 = Radiobutton(janela, text= "Um jogador nas setas", variable=escolha, value=1)
-        check3 = Radiobutton(janela, text= "Dois jogadores (WASD)", variable=escolha, value=2)
-        label4 = Label(janela, text='Frequência de respawn')
+        Label(janela, text='Quantos Jogadores?').pack()
+        self.entry = Entry(janela)
+        self.entry.pack()
+        Label(janela, text='Quantos recursos?').pack()
+        self.entry2 = Entry(janela)
+        self.entry2.pack()
+        Label(janela, text='Haverão jogadores?').pack()
+        Radiobutton(janela, text= "Apenas NPC\'s", variable=self.escolha, value=0).pack()
+        Radiobutton(janela, text= "Um jogador nas setas", variable=self.escolha, value=1).pack()
+        Radiobutton(janela, text= "Dois jogadores (WASD)", variable=self.escolha, value=2).pack()
+        Label(janela, text='Frequência de respawn').pack()
         frame = Frame(janela)
-        chequi =  Radiobutton(frame, text="0", variable= self.frequencia, value=10)
-        chequi1 = Radiobutton(frame, text="1", variable= self.frequencia, value=5)
-        chequi2 = Radiobutton(frame, text="2", variable= self.frequencia, value=3)
-        chequi3 = Radiobutton(frame, text="3", variable= self.frequencia, value=1)
-        comecar = Button(janela, text="Iniciar", command=partial(self.inicia, janela, entry, entry2, escolha))
-        label.pack()
-        entry.pack()
-        label2.pack()
-        entry2.pack()
-        label3.pack()
-        check.pack()
-        check2.pack()
-        check3.pack()
-        label4.pack()
         frame.pack()
+        chequi =  Radiobutton(frame, text="0", variable= self.frequencia, value=10)
         chequi.pack(side=LEFT)
-        chequi1.pack(side=LEFT)
-        chequi2.pack(side=LEFT)
-        chequi3.pack(side=LEFT)
-        comecar.pack()
+        Radiobutton(frame, text="1", variable= self.frequencia, value=5).pack(side=LEFT)
+        Radiobutton(frame, text="2", variable= self.frequencia, value=3).pack(side=LEFT)
+        Radiobutton(frame, text="3", variable= self.frequencia, value=1).pack(side=LEFT)
+        Label(janela, text="Nível de velocidade").pack()
+        frame2 = Frame(janela)
+        frame2.pack()
+        Radiobutton(frame2, text="1", variable= self.vlc, value=0.5).pack(side=LEFT)
+        Radiobutton(frame2, text="2", variable= self.vlc, value=0.1).pack(side=LEFT)
+        Radiobutton(frame2, text="3", variable= self.vlc, value=0.05).pack(side=LEFT)
+        Radiobutton(frame2, text="4", variable= self.vlc, value=0.035).pack(side=LEFT)
+        xeq5 = Radiobutton(frame2, text="5", variable= self.vlc, value=0.01)
+        xeq5.pack(side=LEFT)
+        Radiobutton(frame2, text="6", variable= self.vlc, value=0.001).pack(side=LEFT)
+        Radiobutton(frame2, text="7", variable= self.vlc, value=0).pack(side=LEFT)
+        auto = Checkbutton(janela, text="Movimento Automático?", variable=self.choice)
+        auto.pack()
+        Button(janela, text="Iniciar", command=partial(self.inicia, janela)).pack()
         chequi.select()
+        xeq5.select()
+        auto.select()
         janela.mainloop()
 
-    def inicia(self, janela, entry, entry2, escolha):
-        entry, entry2, escolha, frequencia = entry.get(), entry2.get(), escolha.get(), self.frequencia.get()
+    def inicia(self, janela):
+        entry, entry2, escolha, frequencia, velocidade = self.entry.get(), self.entry2.get(), self.escolha.get(), self.frequencia.get(), self.vlc.get()
         verificator = True
+        print(self.choice.get())
         if entry == '' or entry2 == '':
             verificator = False
             messagebox.showinfo("Alerta", "Preencha os campos!")
@@ -331,6 +427,9 @@ class config:
             messagebox.showinfo("Alerta", "Você ultrapassou o máximo de jogadores (22)!")
         elif int(entry2) > 100:
             messagebox.showinfo("Alerta", "Haverá mais de 200 objetos na tela! Pode ficar lento!")
+        elif velocidade == 0:
+            messagebox.showinfo("Alerta", "Velocidade nível computador, apenas para testes!")
         if verificator:
-            NaoJogo(janela, int(entry), int(entry2), escolha, frequencia)
+            if self.choice.get() == 1: NaoJogo(janela, int(entry), int(entry2), escolha, frequencia, velocidade, 's')
+            else: NaoJogo(janela, int(entry), int(entry2), escolha, frequencia, velocidade, 'n')
 config()
