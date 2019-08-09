@@ -22,13 +22,50 @@ class Mob(Pessoa):
      - Se auto deletar
 
 Funções:
-    __init__(canvas, cor, nome = "inimigo", mov = "n")
-     - canvas = O objeto Canvas (tkinter) onde o objeto Mob sera instanciado
-     - nome = Caso quiser colocar um nome na hora da vitoria
-     - mov = Se ele deve andar automaticamente (na direcao dada) ou nao
+    1 - __init__(canvas, cor, nome = "inimigo", mov = "n")
+        Quando instanciar o objeto Mob, ele recebe pelo menos a cor do objeto, para ser exibido no Tkinter
+            - canvas = O objeto Canvas (tkinter) onde o objeto Mob sera instanciado
+            - nome   = Caso quiser colocar um nome na hora da vitoria
+            - mov    = Se ele deve andar automaticamente (na direcao dada) ou nao
 
-    __eq__(outro)
-     - outro 
+    2 - __eq__(outro)
+        Para comparar objetos, através da localização deles, e saber se eles se encontraram.
+            - outro = O outro objeto que ira ser comparado
+    
+    3 - para(evt = None)
+        Para a movimentacao do jogador se o mesmo estiver em movimento automatico
+            - evt = O evento que faz com que ele pare (Shift ou Ctrl)
+
+    4 - acima(evt = None), abaixo(evt = None), aesquerda(evt = None), adireita(evt = None)
+        Para a movimentacao automatica do jogador apenas mudando uma expressao booleana
+            - evt = O evento que faz com que ele mude (setas ou WASD)
+    
+    5 - cima(evt = None), baixo(evt = None), esquerda(evt = None), direita(evt = None)
+        Para a movimentacao por passos para qualquer Mob
+            - evt = O evento que faz com que ele mude (setas ou WASD)
+    
+    6 - aleatorio()
+        Faz o Mob andar aleatoriamente
+    
+    7 - npc(mobs)
+        Faz o Mob pensar qual lista de objetos tentar seguir/fugir (outros Mobs ou outro objeto)
+        Ele considera o proprio life e se as listas dadas tem itens
+            - mobs = Lista de objetos (Mobs e outros objetos)
+    
+    8 - persegue(pos, objetivo), foge(pos, objetivo)
+        Analisa a posicao atual e qual o objetivo dado e vai em direcao ou em direcao contraria
+            - pos      = Posicao atual
+            - objetivo = Posicao do alvo
+
+    10 - calcula(mobs)
+        Analisa qual o objeto mais proximo para seguir
+            - mobs = Lista de objetos
+
+    11 - posicao()
+        Devolve a posicao do objeto Mob
+
+    12 - deleta()
+        Deleta o canvas que eh o proprio objeto Mob
     '''
     def __init__(self, canvas, cor, nome = "inimigo", mov = 'n'):
         self.listaNegra = []
@@ -166,9 +203,6 @@ Funções:
     def deleta(self):
         self.canvas.delete(self.id)
         self.canvas.delete(self.info)
-
-    def eventos(self, evt):
-        print(evt)
 
 class Ob(Xp):
     def __init__(self, canvas):
