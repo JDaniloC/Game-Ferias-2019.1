@@ -5,6 +5,7 @@ from Classes import Pessoa, Supply, Xp
 from math import sqrt
 from functools import partial
 from tkinter import messagebox
+from Multilistbox import Multilist
 
 class Mob(Pessoa):
     listaNegra = []
@@ -144,11 +145,17 @@ class NaoJogo:
         self.janela.resizable(0,0)
         self.janela.wm_attributes("-topmost", 1)
 
-        tela = Canvas(self.janela, width=1280, height=700, bd=0, highlightthickness=0)
+        fram = Frame(self.janela)
+        tela = Canvas(fram, width=1280, height=700, bd=0, highlightthickness=0)
+        pontos = Frame(fram)
+        lb = Label(pontos, text="Pontuação")
         frame = Frame(self.janela)
         botao = Button(frame, text="Pausa!", command=lambda: time.sleep(30))
         vaza = Button(frame, text="Sair!", command=self.sair)
-        tela.pack()
+        fram.pack()
+        tela.pack(side=LEFT)
+        pontos.pack(side=RIGHT)
+        lb.pack()
         frame.pack()
         botao.pack(side="left")
         vaza.pack(side='left')
@@ -172,9 +179,16 @@ class NaoJogo:
 
         objetos = {'pl':players, 'pw':powerups}
         cont = 0
+        pt = Multilist(pontos, (("Nome", 10), ("Nível", 10)))
+        for i in players:
+            pt.insert(END, (i.nome, i.nivel))
+        pt.pack(expand=YES, fill=BOTH)
         while self.verificador:
             cont += 1
             if cont == 300:
+                
+                for i in players:
+                    pt.insert(END, (i.nome, i.nivel))
                 for i in players:
                     i.listaNegra = []
                 cont = 0
