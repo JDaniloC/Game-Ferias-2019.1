@@ -3,13 +3,13 @@ from tkinter import *
 class Multilist(Frame):
     # http://code.activestate.com/recipes/52266-multilistbox-tkinter-widget/
     # Editado por "a" que é o último comentário do site.
-    def __init__(self, master, lists):
+    def __init__(self, master, tamanho, lists):
         Frame.__init__(self, master)
         self.lists = []
         for l,w in lists:
             frame = Frame(self); frame.pack(side=LEFT, expand=YES, fill=BOTH)
             Label(frame, text=l, borderwidth=1, relief=RAISED).pack(fill=X)
-            lb = Listbox(frame, width=w, borderwidth=0, selectborderwidth=0, relief=FLAT, exportselection=FALSE)
+            lb = Listbox(frame, width=w, height=tamanho, borderwidth=0, selectborderwidth=0, relief=FLAT, exportselection=FALSE)
             lb.pack(expand=YES, fill=BOTH)
             self.lists.append(lb)
             lb.bind('<B1-Motion>', lambda e, s=self: s._select(e.y))

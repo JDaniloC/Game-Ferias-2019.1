@@ -18,7 +18,7 @@ class Mob(Pessoa):
         self.info = canvas.create_text(30,5, text=nome)
         self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,680,2))
         self.canvas.move(self.info, self.posicao()[0]-20, self.posicao()[1]-12)
-        if self.cor == "grplayers[0].nome, 'venceu o jogo!'een":
+        if self.cor == "green":
             self.canvas.bind_all("<Key-a>", self.esquerda)
             self.canvas.bind_all("<Key-d>", self.direita)
             self.canvas.bind_all("<Key-w>", self.cima)
@@ -133,10 +133,7 @@ class Ob2(Supply):
         self.canvas.delete(self.id)
 
 class NaoJogo:
-    def __init__(self, janela, jogadores, mobs, opcao):
-        global verificador
-        global players
-
+    def __init__(self, janela, jogadores, mobs, opcao, frequencia):
         self.verificador = True
         janela.destroy()
         self.janela = Tk()
@@ -147,8 +144,8 @@ class NaoJogo:
 
         fram = Frame(self.janela)
         tela = Canvas(fram, width=1280, height=700, bd=0, highlightthickness=0)
-        pontos = Frame(fram)
-        lb = Label(pontos, text="Pontuação")
+        pontos = Frame(fram, height=700)
+        lb = Label(pontos, text="Pontuação", font="Georgia 20 bold")
         frame = Frame(self.janela)
         botao = Button(frame, text="Pausa!", command=lambda: time.sleep(30))
         vaza = Button(frame, text="Sair!", command=self.sair)
@@ -160,49 +157,56 @@ class NaoJogo:
         botao.pack(side="left")
         vaza.pack(side='left')
 
-        cores = ['navy', 'cornflower blue', 'dark slate blue', 'medium sea green', 'light sea green', 'lawn green', 'lime green', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'OliveDrab1']
+        cores = ['navy', 'cornflower blue', 'dark slate blue', 'light sea green', 'lawn green', 'lime green', 'dark khaki', 'goldenrod',  'rosy brown','indian red', 'saddle brown', 'dark orange', 'red', 'hot pink', 'pale violet red', 'maroon', 'snow4', 'SlateBlue1', 'DeepSkyBlue2', 'turquoise1', 'SeaGreen1', 'OliveDrab1']
 
-        players = []
+        self.players = []
         powerups = []
 
         for i in range(jogadores):
-            players.append(Mob(tela, cores[i], cores[i]))
+            self.players.append(Mob(tela, cores[i], cores[i]))
         for i in range(mobs):
             powerups.append(Ob(tela))
             powerups.append(Ob2(tela))
 
         if opcao  == 1:
-            players.append(Mob(tela, 'blue', "Jogador"))
+            self.players.append(Mob(tela, 'blue', "Jogador"))
         elif opcao == 2:
-            players.append(Mob(tela, 'blue', "Jogador 01"))
-            players.append(Mob(tela, 'green', 'Jogador 02'))
+            self.players.append(Mob(tela, 'blue', "Jogador 01"))
+            self.players.append(Mob(tela, 'green', 'Jogador 02'))
 
-        objetos = {'pl':players, 'pw':powerups}
+        objetos = {'pl':self.players, 'pw':powerups}
         cont = 0
-        pt = Multilist(pontos, (("Nome", 10), ("Nível", 10)))
-        for i in players:
-            pt.insert(END, (i.nome, i.nivel))
-        pt.pack(expand=YES, fill=BOTH)
+        self.pn = Multilist(pontos, 9, (("Nome", 15), ("Nível", 1)))
+        self.pp = Multilist(pontos, 9, (("Nome", 15), ("Pontos", 1)))
+        self.pa = Multilist(pontos, 9, (("Nome", 15), ("Ataque", 1)))
+        self.pd = Multilist(pontos, 9, (("Nome", 15), ("Defesa", 1)))
+        self.atualiza()
+        self.pp.pack(expand=YES, fill=BOTH)
+        self.pn.pack(expand=YES, fill=BOTH)
+        self.pa.pack(expand=YES, fill=BOTH)
+        self.pd.pack(expand=YES, fill=BOTH)
         while self.verificador:
             cont += 1
-            if cont == 300:
-                
-                for i in players:
-                    pt.insert(END, (i.nome, i.nivel))
-                for i in players:
+            if cont % (100*frequencia) == 0:
+                powerups.append(Ob(tela))
+                powerups.append(Ob2(tela))
+            if cont % 300 == 0:
+                self.atualiza()
+                for i in self.players:
                     i.listaNegra = []
-                cont = 0
+            if cont == 600: cont = 0
             self.janela.update_idletasks()
             self.janela.update()
-            for i in players:
+            for i in self.players:
                 i.npc(objetos)
-            self.igual(players)
-            self.igual2(players, powerups)
+            random.shuffle(self.players)
+            self.igual(self.players)
+            self.igual2(self.players, powerups)
             time.sleep(0.01)
-            if len(players) < 2:
+            if len(self.players) < 2:
                 break
-        messagebox.showinfo("Fim de Jogo", players[0].nome+' venceu o jogo!' )
-        ganhador = players[0].__dict__
+        messagebox.showinfo("Fim de Jogo", self.players[0].nome+' venceu o jogo!' )
+        ganhador = self.players[0].__dict__
         lista = ["vida", "ataque", "defesa", "nivel", "gloria", "total"]
         print("Informações de", ganhador["nome"])
         for i in lista:
@@ -213,6 +217,18 @@ class NaoJogo:
         self.verificador = False
         self.janela.destroy()
     
+    def atualiza(self):
+        self.pn.delete(0, END)
+        self.pp.delete(0, END)
+        self.pa.delete(0, END)
+        self.pd.delete(0, END)
+        self.players.sort(reverse=True)
+        for i in self.players:
+            self.pn.insert(END, (i.nome, i.nivel))
+            self.pp.insert(END, (i.nome, i.pontos))
+            self.pa.insert(END, (i.nome, i.ataque))
+            self.pd.insert(END, (i.nome, i.defesa))
+
     def compara(self, l1, l2):
         if l1[0] <= l2[0]:
             if l1[1] <= l2[1]:
@@ -222,25 +238,27 @@ class NaoJogo:
         return False
     
     def dano(self, atk, dfs):
-        global players
         if dfs - atk != 1:
             atk.listaNegra.append(dfs.id)
         atk - dfs
         print(atk.nome+":",atk.vida)
         print(dfs.nome+":",dfs.vida)
-        if atk.vida < 1:
-            dfs + Xp()
-            dfs + Supply()
-            atk.deleta()
-            players.remove(atk)
-            del atk
-        if dfs.vida < 1:
-            atk + Xp()
-            atk + Supply()
-            dfs.deleta()
-            players.remove(dfs)
-            del dfs
-    
+        try:
+            if atk.vida < 1:
+                dfs + Xp()
+                dfs + Supply()
+                atk.deleta()
+                self.players.remove(atk)
+                del atk
+            if dfs.vida < 1:
+                atk + Xp()
+                atk + Supply()
+                dfs.deleta()
+                self.players.remove(dfs)
+                del dfs
+        except:
+            print("Deu erro!")
+
     def igual(self, locais): # Antes era recursivo e chegava ao máximo
         for a in range(len(locais)):
             for i in range(a+1,len(locais)):
@@ -252,7 +270,7 @@ class NaoJogo:
         for a in range(len(jogadores)):
             for i in objetos:
                 if self.compara(jogadores[a].posicao(), i.posicao()):
-                    jogadores[0] + i
+                    jogadores[a] + i
                     i.deleta()
                     objetos.remove(i)
                     del i
@@ -262,6 +280,7 @@ class config:
     def __init__(self):
         janela = Tk()
         escolha = IntVar()
+        self.frequencia = IntVar()
         janela.title("Configurações")
         label = Label(janela, text='Quantos Jogadores?')
         entry = Entry(janela)
@@ -271,6 +290,12 @@ class config:
         check = Radiobutton(janela, text= "Apenas NPC\'s", variable=escolha, value=0)
         check2 = Radiobutton(janela, text= "Um jogador nas setas", variable=escolha, value=1)
         check3 = Radiobutton(janela, text= "Dois jogadores (WASD)", variable=escolha, value=2)
+        label4 = Label(janela, text='Frequência de respawn')
+        frame = Frame(janela)
+        chequi =  Radiobutton(frame, text="0", variable= self.frequencia, value=10)
+        chequi1 = Radiobutton(frame, text="1", variable= self.frequencia, value=5)
+        chequi2 = Radiobutton(frame, text="2", variable= self.frequencia, value=3)
+        chequi3 = Radiobutton(frame, text="3", variable= self.frequencia, value=1)
         comecar = Button(janela, text="Iniciar", command=partial(self.inicia, janela, entry, entry2, escolha))
         label.pack()
         entry.pack()
@@ -280,11 +305,18 @@ class config:
         check.pack()
         check2.pack()
         check3.pack()
+        label4.pack()
+        frame.pack()
+        chequi.pack(side=LEFT)
+        chequi1.pack(side=LEFT)
+        chequi2.pack(side=LEFT)
+        chequi3.pack(side=LEFT)
         comecar.pack()
+        chequi.select()
         janela.mainloop()
 
     def inicia(self, janela, entry, entry2, escolha):
-        entry, entry2, escolha = entry.get(), entry2.get(), escolha.get()
+        entry, entry2, escolha, frequencia = entry.get(), entry2.get(), escolha.get(), self.frequencia.get()
         verificator = True
         if entry == '' or entry2 == '':
             verificator = False
@@ -292,13 +324,13 @@ class config:
         elif not entry.isnumeric() or not entry2.isnumeric():
             verificator = False
             messagebox.showinfo("Alerta", "Precisa ser um número!")
-        elif 10 < int(entry) < 23:
-            messagebox.showinfo("Alerta", "Você colocou mais de 10 jogadores! Pode dar uma excessão!") 
-        elif int(entry) > 23:
+        elif 9 < int(entry) < 23:
+            messagebox.showinfo("Alerta", "Você colocou mais de 9 jogadores! Pode dar uma excessão!") 
+        elif int(entry) > 22:
             verificator = False
-            messagebox.showinfo("Alerta", "Você ultrapassou o máximo de jogadores (23)!")
-        elif int(entry2) > 60:
-            messagebox.showinfo("Alerta", "Haverá mais de 120 objetos na tela! Pode dar uma excessão!")
+            messagebox.showinfo("Alerta", "Você ultrapassou o máximo de jogadores (22)!")
+        elif int(entry2) > 100:
+            messagebox.showinfo("Alerta", "Haverá mais de 200 objetos na tela! Pode ficar lento!")
         if verificator:
-            NaoJogo(janela, int(entry), int(entry2), escolha)
+            NaoJogo(janela, int(entry), int(entry2), escolha, frequencia)
 config()
