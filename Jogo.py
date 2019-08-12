@@ -368,9 +368,16 @@ class NaoJogo:
         return False
     
     def dano(self, atk, dfs):
-        if dfs - atk != 1:
+        result = dfs - atk
+        if result != 1:
             atk.listaNegra.append(dfs.id)
-        atk - dfs
+        if result == 2:
+            atk - dfs
+        result = atk - dfs
+        if result != 1:
+            dfs.listaNegra.append(atk.id)
+        if result == 2:
+            dfs - atk
         dfs.canvas.itemconfigure(dfs.life, text=str(dfs.vida))
         atk.canvas.itemconfigure(atk.life, text=str(atk.vida))
         print(atk.nome+":",atk.vida)
