@@ -77,8 +77,10 @@ Funções:
         self.id = canvas.create_oval(10,10,26,26, fill= cor)
         if nome == "inimigo": nome = cor
         self.info = canvas.create_text(30,5, text=nome)
+        self.life = canvas.create_text(30,5, text=str(self.vida))
         self.canvas.move(self.id, random.randrange(0,1240,2), random.randrange(0,680,2))
         self.canvas.move(self.info, self.posicao()[0]-20, self.posicao()[1]-12)
+        self.canvas.move(self.life, self.posicao()[0]-22, self.posicao()[1]+18)
         if self.cor == "green":
             self.canvas.bind_all("<Shift_L>", self.para)
             if self.mov == 'n':
@@ -107,7 +109,7 @@ Funções:
     def __eq__(self, outro):
         if self.posicao() == outro.posicao(): return True
         return False
-
+    
     def para(self, evt=None):
         for i in range(len(self.movimentos)):
             self.movimentos[i] = False
@@ -133,21 +135,25 @@ Funções:
         if self.posicao()[0] > 1:
             self.canvas.move(self.id, -2,0)
             self.canvas.move(self.info, -2,0)
+            self.canvas.move(self.life, -2,0)
         self.posicao()
     def direita(self, evt = None):
         if self.posicao()[0] < 1240:
             self.canvas.move(self.id, 2,0)
             self.canvas.move(self.info, 2,0)
+            self.canvas.move(self.life, 2,0)
         self.posicao()
     def cima(self, evt = None):
         if self.posicao()[1] > 1:
             self.canvas.move(self.id, 0,-2)
             self.canvas.move(self.info, 0, -2)
+            self.canvas.move(self.life, 0, -2)
         self.posicao()
     def baixo(self, evt = None):
         if self.posicao()[1] < 680:
             self.canvas.move(self.id, 0,2)
             self.canvas.move(self.info, 0, 2)
+            self.canvas.move(self.life, 0, 2)
         self.posicao()
 
     def aleatorio(self):
@@ -203,6 +209,7 @@ Funções:
     def deleta(self):
         self.canvas.delete(self.id)
         self.canvas.delete(self.info)
+        self.canvas.delete(self.life)
 
 class Ob(Xp):
     def __init__(self, canvas):
@@ -364,6 +371,8 @@ class NaoJogo:
         if dfs - atk != 1:
             atk.listaNegra.append(dfs.id)
         atk - dfs
+        dfs.canvas.itemconfigure(dfs.life, text=str(dfs.vida))
+        atk.canvas.itemconfigure(atk.life, text=str(atk.vida))
         print(atk.nome+":",atk.vida)
         print(dfs.nome+":",dfs.vida)
         try:
@@ -393,6 +402,7 @@ class NaoJogo:
         for a in range(len(jogadores)):
             for i in objetos:
                 if self.compara(jogadores[a].posicao(), i.posicao()):
+                    jogadores[a].canvas.itemconfigure(jogadores[a].life, text=str(jogadores[a].vida))
                     jogadores[a] + i
                     i.deleta()
                     objetos.remove(i)
