@@ -233,10 +233,9 @@ class Ob2(Supply):
     def deleta(self):
         self.canvas.delete(self.id)
 
-class NaoJogo:
-    def __init__(self, janela, jogadores, mobs, opcao, frequencia, velocidade, auto):
+'''class NaoJogo:
+    def __init__(self, jogadores, mobs, opcao, frequencia, velocidade, auto):
         self.verificador = True
-        janela.destroy()
         self.janela = Tk()
         self.janela.title("A abolição do homem")
 
@@ -407,7 +406,7 @@ class NaoJogo:
                     i.deleta()
                     objetos.remove(i)
                     del i
-    
+'''    
 
 class config:
     resultado = 1

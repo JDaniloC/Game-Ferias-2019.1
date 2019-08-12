@@ -16,9 +16,8 @@ class Pessoa:
             print('Ataque defendido totalmente')
             return 0
         elif inimigo.ataque < self.defesa:
-            inimigo - self 
             print('Contra-ataque!')
-            return 0
+            return 2
         else:
             self.vida -= inimigo.ataque - self.defesa
             print(self.nome, 'recebeu',inimigo.ataque-self.defesa, 'de dano!')
