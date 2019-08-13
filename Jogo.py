@@ -464,20 +464,15 @@ class config:
     def inicia(self, janela):
         entry, entry2, escolha, frequencia, velocidade = self.entry.get(), self.entry2.get(), self.escolha.get(), self.frequencia.get(), self.vlc.get()
         verificator = True
-        print(self.choice.get())
         if entry == '' or entry2 == '':
             verificator = False
             messagebox.showinfo("Alerta", "Preencha os campos!")
         elif not entry.isnumeric() or not entry2.isnumeric():
             verificator = False
             messagebox.showinfo("Alerta", "Precisa ser um número!")
-        elif 9 < int(entry) < 23:
-            messagebox.showinfo("Alerta", "Você colocou mais de 9 jogadores! Pode dar uma excessão!") 
         elif int(entry) > 22:
             verificator = False
             messagebox.showinfo("Alerta", "Você ultrapassou o máximo de jogadores (22)!")
-        elif int(entry2) > 100:
-            messagebox.showinfo("Alerta", "Haverá mais de 200 objetos na tela! Pode ficar lento!")
         elif velocidade == 0:
             messagebox.showinfo("Alerta", "Velocidade nível computador, apenas para testes!")
         if verificator:
