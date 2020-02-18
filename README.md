@@ -24,7 +24,7 @@ Download direto pelo botão verde **Clone or Download** ou abra o VSCode, pressi
 // Se estiver no linux ou quiser iniciar através do python, execute o arquivo Jogo.py
 ```
 
-<img style="float: right; width: 25%" src="./static/configuracoes.png">
+<img align="right" src="./static/configuracoes.png">
 
 ## Novidades
 
