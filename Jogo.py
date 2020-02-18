@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 from functools import partial
-from BackEnd import Game, Client
-from Udp import Internet
+from backend.Engine import Game, Client
+from backend.Udp import Internet
 
 '''
 Criando um "Jogo" simples em Tkinter!
