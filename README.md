@@ -27,6 +27,7 @@ Download direto pelo botão verde **Clone or Download** ou abra o VSCode, pressi
 <img align="right" src="./static/configuracoes.png">
 
 ## O que aprendi
+ - Orientação a objetos em Python
  - Criar um jogo sem framework de jogos
  - Inteligencia para inimigos
  - Multiplayer local e online
