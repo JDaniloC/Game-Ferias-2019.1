@@ -26,6 +26,11 @@ Download direto pelo botão verde **Clone or Download** ou abra o VSCode, pressi
 
 <img align="right" src="./static/configuracoes.png">
 
+## O que aprendi
+ - Criar um jogo sem framework de jogos
+ - Inteligencia para inimigos
+ - Multiplayer local e online
+
 ## Novidades
 
 - [x] *Jogo funcional sem bugs, criado a partir do Tkinter*
